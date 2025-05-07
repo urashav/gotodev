@@ -1,3 +1,4 @@
+// Если тема контекста еще не изучена - пропустить задачу
 package main
 
 import (
@@ -30,6 +31,6 @@ func predictableFunc() int64 {
 }
 
 func main() {
-	res := predictableFunc
+	res := predictableFunc()
 	fmt.Println(res)
 }
