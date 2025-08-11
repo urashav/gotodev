@@ -8,15 +8,15 @@ import (
 
 // Есть функция generate(), которая генерит числа
 // Функция использует канал отмены. Переделать на контекст.
-func generate(cancel context.CancelFunc, start int) <-chan int {
+func generate(ctx context.Context, start int) <-chan int {
 	out := make(chan int)
 	go func() {
 		defer close(out)
 		for i := start; ; i++ {
 			select {
 			case out <- i:
-			default:
-				cancel()
+			case <-ctx.Done():
+				return
 			}
 		}
 	}()
@@ -24,9 +24,10 @@ func generate(cancel context.CancelFunc, start int) <-chan int {
 }
 
 func main() {
-	_, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	generated := generate(cancel, 11)
+	generated := generate(ctx, 11)
 	for num := range generated {
 		fmt.Print(num, " ")
 		if num > 14 {
